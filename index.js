@@ -96,7 +96,8 @@ const getDiscounts = async (token, eventId) => {
 };
 
 // Routes
-app.get('/api/events', async (req, res) => {
+// Routes
+app.get('/events', async (req, res) => {
     try {
         const token = await getToken();
         const events = await getEvents(token);
@@ -107,7 +108,7 @@ app.get('/api/events', async (req, res) => {
     }
 });
 
-app.get('/api/reg-types', async (req, res) => {
+app.get('/reg-types', async (req, res) => {
     try {
         const token = await getToken();
         const eventId = req.query.event_id || '219985';
@@ -119,7 +120,7 @@ app.get('/api/reg-types', async (req, res) => {
     }
 });
 
-app.get('/api/registrants', async (req, res) => {
+app.get('/registrants', async (req, res) => {
     try {
         const token = await getToken();
         const eventId = req.query.event_id || '219985';
@@ -131,7 +132,7 @@ app.get('/api/registrants', async (req, res) => {
     }
 });
 
-app.get('/api/discounts', async (req, res) => {
+app.get('/discounts', async (req, res) => {
     try {
         const token = await getToken();
         const eventId = req.query.event_id || '219985';
@@ -142,6 +143,7 @@ app.get('/api/discounts', async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch discounts' });
     }
 });
+
 
 // Stripe payment handler
 app.post('/process-payment', async (req, res) => {
@@ -165,5 +167,3 @@ app.post('/process-payment', async (req, res) => {
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
-
-module.exports = app; // For Vercel
