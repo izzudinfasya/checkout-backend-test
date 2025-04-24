@@ -1,11 +1,10 @@
-import stripe from 'stripe';
-const stripeClient = stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 export default async function handler(req, res) {
     const { token, amount } = req.body;
 
     try {
-        const charge = await stripeClient.charges.create({
+        const charge = await stripe.charges.create({
             amount: amount,
             currency: "cad",
             source: token,
