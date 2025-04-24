@@ -1,7 +1,8 @@
 const getToken = require('../utils/getToken');
 const getRegTypes = require('../utils/getRegTypes');
+const allowCors = require('../utils/allowCors');
 
-module.exports = async (req, res) => {
+const handler = async (req, res) => {
     const eventId = req.query.event_id || '219985';
     try {
         const token = await getToken();
@@ -12,3 +13,5 @@ module.exports = async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch registration types' });
     }
 };
+
+module.exports = allowCors(handler);

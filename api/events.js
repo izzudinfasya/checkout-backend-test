@@ -1,7 +1,8 @@
 const getToken = require('../utils/getToken');
 const getEvents = require('../utils/getEvents');
+const allowCors = require('../utils/allowCors');
 
-module.exports = async (req, res) => {
+const handler = async (req, res) => {
     try {
         const token = await getToken();
         const events = await getEvents(token);
@@ -11,3 +12,5 @@ module.exports = async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch events' });
     }
 };
+
+module.exports = allowCors(handler);

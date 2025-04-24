@@ -1,6 +1,7 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const allowCors = require('../utils/allowCors');
 
-export default async function handler(req, res) {
+const handler = async (req, res) => {
     const { token, amount } = req.body;
 
     try {
@@ -16,4 +17,6 @@ export default async function handler(req, res) {
         console.error("Payment failed:", error);
         res.status(500).json({ success: false, message: error.message });
     }
-}
+};
+
+module.exports = allowCors(handler);

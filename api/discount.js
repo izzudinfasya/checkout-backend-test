@@ -1,10 +1,11 @@
 const getToken = require('../utils/getToken');
 const getDiscount = require('../utils/getDiscount');
+const allowCors = require('../utils/allowCors');
 
-module.exports = async (req, res) => {
+const handler = async (req, res) => {
     const eventId = req.query.event_id || '219985';
     try {
-        const token = await getToken();  // Get the token
+        const token = await getToken();
         const discounts = await getDiscount(token, eventId);
         res.status(200).json(discounts);
     } catch (error) {
@@ -12,3 +13,5 @@ module.exports = async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch discounts' });
     }
 };
+
+module.exports = allowCors(handler);
