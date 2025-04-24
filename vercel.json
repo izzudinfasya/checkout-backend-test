@@ -28,6 +28,10 @@
       "dest": "/api/process-payment.js"
     },
     {
+      "src": "/",
+      "dest": "/index.js"
+    },
+    {
       "src": "/(.*)",
       "dest": "/index.js"
     }
