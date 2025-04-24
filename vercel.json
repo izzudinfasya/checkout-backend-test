@@ -28,11 +28,7 @@
       "dest": "/api/process-payment.js"
     },
     {
-      "src": "/",
-      "dest": "/api/index.js"
-    },
-    {
-      "src": "/(.*)",
+      "src": "/api/index",
       "dest": "/api/index.js"
     }
   ]
