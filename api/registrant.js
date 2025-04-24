@@ -1,20 +1,12 @@
-const axios = require('axios');
 const getToken = require('../utils/getToken');
+const getRegistrant = require('../utils/getRegistrant');
 
 module.exports = async (req, res) => {
+    const eventId = req.query.event_id || '219985';
     try {
-        const token = await getToken();
-        const eventId = req.query.event_id || '219985';
-        const response = await axios.get(
-            `https://api.swoogo.com/api/v1/registrants?event_id=${eventId}`,
-            {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json',
-                },
-            }
-        );
-        res.status(200).json(response.data);
+        const token = await getToken();  // Get the token
+        const registrants = await getRegistrant(token, eventId);
+        res.status(200).json(registrants);
     } catch (error) {
         console.error('Error fetching registrants:', error);
         res.status(500).json({ error: 'Failed to fetch registrants' });

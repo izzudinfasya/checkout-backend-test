@@ -12,16 +12,16 @@
       "dest": "/api/events.js"
     },
     {
-      "src": "/api/discounts",
-      "dest": "/api/discounts.js"
+      "src": "/api/discount",
+      "dest": "/api/discount.js"
     },
     {
       "src": "/api/reg-types",
       "dest": "/api/reg-types.js"
     },
     {
-      "src": "/api/registrants",
-      "dest": "/api/registrants.js"
+      "src": "/api/registrant",
+      "dest": "/api/registrant.js"
     },
     {
       "src": "/api/process-payment",
