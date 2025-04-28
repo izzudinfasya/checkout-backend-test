@@ -1,7 +1,7 @@
 const getToken = require('../utils/getToken');
 const getEvents = require('../utils/getEvents');
 const allowCors = require('../utils/allowCors');
-const basicAuth = require('./basic-auth');
+const basicAuth = require('../utils/authenticate');
 
 const handler = async (req, res) => {
     const isAuthenticated = basicAuth(req, res);
