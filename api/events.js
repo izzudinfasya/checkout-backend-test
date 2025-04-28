@@ -4,15 +4,11 @@ const allowCors = require('../../utils/allowCors');
 
 const handler = async (req, res) => {
     try {
-        let { eventId } = req.query;
+        let eventId = null;
 
-        if (!eventId) {
-            const pathParts = req.url.split('/');
-            eventId = pathParts[pathParts.length - 1] || null;
-
-            if (eventId.includes('?')) {
-                eventId = eventId.split('?')[0];
-            }
+        const match = req.url.match(/^\/api\/events\/([^\/\?]+)/);
+        if (match) {
+            eventId = match[1];
         }
 
         const token = await getToken();
@@ -25,7 +21,7 @@ const handler = async (req, res) => {
             return res.status(200).json(events);
         }
     } catch (error) {
-        console.error('Error fetching events:', error?.message || error);
+        console.error('Error fetching events:', error);
         return res.status(500).json({ error: 'Failed to fetch events' });
     }
 };
