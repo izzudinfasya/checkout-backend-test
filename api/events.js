@@ -4,8 +4,9 @@ const allowCors = require('../utils/allowCors');
 
 const handler = async (req, res) => {
     try {
+        const { eventId } = req.query;
         const token = await getToken();
-        const events = await getEvents(token);
+        const events = await getEvents(token, eventId);
         res.status(200).json(events);
     } catch (error) {
         console.error('Error fetching events:', error);

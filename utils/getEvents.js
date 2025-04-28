@@ -1,8 +1,8 @@
 const axios = require('axios');
 
-const getEvents = async (token) => {
+const getEvents = async (token, eventId) => {
     const response = await axios.get(
-        'https://api.swoogo.com/api/v1/events?fields=capacity,close_date,close_time,created_at,created_by,description,end_date,end_time,folder_id,free_event,hashtag,id,name,organizer_id,start_date,start_time,status,target_attendance,timezone,type_id,updated_at,updated_by,url,webinar_url',
+        `https://api.swoogo.com/api/v1/events/${eventId}?fields=capacity%2Cclose_date%2Cclose_time%2Ccreated_at%2Ccreated_by%2Cdescription%2Cend_date%2Cend_time%2Cfolder_id%2Cfree_event%2Chashtag%2Cid%2Cname%2Corganizer_id%2Cstart_date%2Cstart_time%2Cstatus%2Ctarget_attendance%2Ctimezone%2Ctype_id%2Cupdated_at%2Cupdated_by%2Curl%2Cwebinar_url`,
         {
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -11,7 +11,7 @@ const getEvents = async (token) => {
         }
     );
 
-    return response.data; // Return the event data
+    return response.data;
 };
 
 module.exports = getEvents;
