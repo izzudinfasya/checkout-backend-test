@@ -1,6 +1,6 @@
-const getToken = require('../../utils/getToken');
-const getEvents = require('../../utils/getEvents');
-const allowCors = require('../../utils/allowCors');
+const getToken = require('../utils/getToken');
+const getEvents = require('../utils/getEvents');
+const allowCors = require('../utils/allowCors');
 
 const handler = async (req, res) => {
     if (req.method !== 'GET') {
