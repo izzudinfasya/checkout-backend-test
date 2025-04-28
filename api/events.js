@@ -9,9 +9,14 @@ const handler = async (req, res) => {
 
     try {
         const { eventId } = req.query;
+        console.log('Event ID received:', eventId);
 
         const token = await getToken();
+        console.log('Token fetched:', token);
+
         const event = await getEvents(token, eventId);
+        console.log('Event fetched:', event);
+
         return res.status(200).json(event);
     } catch (error) {
         console.error('Error fetching events:', error);
