@@ -1,7 +1,8 @@
-const { postRegistrant } = require('../utils/postRegistrant');
-const { getToken } = require('../utils/getToken');
+const postRegistrant = require('../utils/postRegistrant');
+const getToken = require('../utils/getToken');
+const allowCors = require('../utils/allowCors');
 
-module.exports = async (req, res) => {
+const handler = async (req, res) => {
     if (req.method !== 'POST') {
         return res.status(405).json({ success: false, message: 'Method not allowed' });
     }
@@ -27,3 +28,5 @@ module.exports = async (req, res) => {
         });
     }
 };
+
+module.exports = allowCors(handler);
