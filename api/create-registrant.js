@@ -1,14 +1,8 @@
 const postRegistrant = require('../utils/postRegistrant');
 const getToken = require('../utils/getToken');
 const allowCors = require('../utils/allowCors');
-const basicAuth = require('../utils/authenticate');
 
 const handler = async (req, res) => {
-    const isAuthenticated = basicAuth(req, res);
-    if (!isAuthenticated) {
-        return;
-    }
-
     if (req.method !== 'POST') {
         return res.status(405).json({ success: false, message: 'Method not allowed' });
     }
@@ -16,6 +10,8 @@ const handler = async (req, res) => {
     try {
         const token = await getToken();
         const registrant = await postRegistrant(token, req.body);
+
+        console.log(registrant);
 
         return res.status(200).json({
             success: true,
