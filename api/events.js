@@ -14,11 +14,11 @@ const handler = async (req, res) => {
             const events = await getEvents(token);
             return res.status(200).json(events);
         }
-
     } catch (error) {
         console.error('Error fetching events:', error);
-        res.status(500).json({ error: 'Failed to fetch events' });
+        return res.status(500).json({ error: 'Failed to fetch events' });
     }
 };
+
 
 module.exports = allowCors(handler);

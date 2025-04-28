@@ -8,7 +8,7 @@
   ],
   "routes": [
     {
-      "src": "/api/events/:eventId",
+      "src": "/api/events",
       "dest": "/api/events.js"
     },
     {
