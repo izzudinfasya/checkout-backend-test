@@ -1,21 +1,22 @@
 const getToken = require('../utils/getToken');
 const getEvents = require('../utils/getEvents');
 const allowCors = require('../utils/allowCors');
+const basicAuth = require('./basic-auth');
 
 const handler = async (req, res) => {
+    const isAuthenticated = basicAuth(req, res);
+    if (!isAuthenticated) {
+        return;
+    }
+
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
         const { eventId } = req.query;
-        console.log('Event ID received:', eventId);
-
         const token = await getToken();
-        console.log('Token fetched:', token);
-
         const event = await getEvents(token, eventId);
-        console.log('Event fetched:', event);
 
         return res.status(200).json(event);
     } catch (error) {

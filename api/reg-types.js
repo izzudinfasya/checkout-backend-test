@@ -1,8 +1,14 @@
 const getToken = require('../utils/getToken');
 const getRegTypes = require('../utils/getRegTypes');
 const allowCors = require('../utils/allowCors');
+const basicAuth = require('../utils/authenticate');
 
 const handler = async (req, res) => {
+    const isAuthenticated = basicAuth(req, res);
+    if (!isAuthenticated) {
+        return;
+    }
+
     const eventId = req.query.event_id || '219985';
     try {
         const token = await getToken();
