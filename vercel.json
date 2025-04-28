@@ -28,8 +28,8 @@
       "dest": "/api/process-payment.js"
     },
     {
-      "src": "/api/index",
-      "dest": "/api/index.js"
+      "src": "/api/create-registrant",
+      "dest": "/api/create-registrant.js"
     }
   ]
 }
