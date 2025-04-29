@@ -3,7 +3,7 @@ const getDiscount = require('../utils/getDiscount');
 const allowCors = require('../utils/allowCors');
 
 const handler = async (req, res) => {
-    const eventId = req.query.event_id || '219985';
+    const eventId = req.query.event_id || '256029';
     try {
         const token = await getToken();
         const discounts = await getDiscount(token, eventId);
