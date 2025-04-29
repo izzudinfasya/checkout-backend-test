@@ -31,7 +31,6 @@ const handler = async (req, res) => {
         const registrantPromises = participants.map(participant => {
             return postRegistrant(swoogoToken, {
                 po_number: `PO-${Date.now()}`,
-                payment_method: 'Credit Card',
                 email: participant.email,
                 event_id: eventId,
                 first_name: participant.firstName,
