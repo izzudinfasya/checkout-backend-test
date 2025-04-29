@@ -28,7 +28,9 @@ const handler = async (req, res) => {
 
         const swoogoToken = await getToken();
 
-        const registrantPromises = participants.map(participant => {
+        const allParticipants = Object.values(participants).flat();
+
+        const registrantPromises = allParticipants.map(participant => {
             return postRegistrant(swoogoToken, {
                 po_number: `PO-${Date.now()}`,
                 email: participant.email,
