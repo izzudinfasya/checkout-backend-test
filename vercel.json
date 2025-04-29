@@ -30,6 +30,10 @@
     {
       "src": "/api/create-registrant",
       "dest": "/api/create-registrant.js"
+    },
+    {
+      "src": "/api/register-pay",
+      "dest": "/api/register-pay.js"
     }
   ]
 }
