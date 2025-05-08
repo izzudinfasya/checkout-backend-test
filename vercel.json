@@ -36,8 +36,8 @@
       "dest": "/api/register-pay.js"
     },
     {
-      "src": "/api/create-registrant",
-      "dest": "/api/create-registrant.js"
+      "src": "/api/generate-invoice",
+      "dest": "/api/generate-invoice.js"
     },
     {
       "src": "/api/add-to-calendar",
