@@ -16,11 +16,11 @@ const handler = async (req, res) => {
 
     try {
         const event = {
-            start: start,
-            end: end,
-            title: title,
-            description: description,
-            location: location,
+            start,
+            end,
+            title,
+            description,
+            location,
             status: 'CONFIRMED',
         };
 
@@ -31,11 +31,9 @@ const handler = async (req, res) => {
 
             const safeFileName = encodeURIComponent(fileName);
 
-            res.set({
-                'Content-Type': 'text/calendar',
-                'Content-Disposition': `attachment; filename="${safeFileName}.ics"`,
-                'Content-Length': Buffer.byteLength(icsContent),
-            });
+            res.setHeader('Content-Type', 'text/calendar');
+            res.setHeader('Content-Disposition', `attachment; filename="${safeFileName}.ics"`);
+            res.setHeader('Content-Length', Buffer.byteLength(icsContent));
 
             res.send(icsContent);
         });
