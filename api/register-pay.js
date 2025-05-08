@@ -53,7 +53,7 @@ const handler = async (req, res) => {
             amount: amount,
             currency: 'cad',
             customer: customer.id,
-            description: 'Event Registration Payment',
+            description: 'Event Registration Big Data Canada',
             receipt_email: email,
         });
 
