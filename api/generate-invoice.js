@@ -14,7 +14,7 @@ const handler = async (req, res) => {
     }
 
     try {
-        const executablePath = await chromium.executablePath;
+        const executablePath = chromium.executablePath();
 
         if (!executablePath) {
             throw new Error("Chromium executable not found.");
