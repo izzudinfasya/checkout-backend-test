@@ -1,5 +1,5 @@
-const puppeteer = require('puppeteer-core');
 const chromium = require('chrome-aws-lambda');
+const puppeteer = require('puppeteer-core');
 const allowCors = require('../utils/allowCors');
 
 const handler = async (req, res) => {
@@ -14,27 +14,28 @@ const handler = async (req, res) => {
     }
 
     try {
+        const executablePath = await chromium.executablePath;
+
+        if (!executablePath) {
+            throw new Error("Chromium executable not found.");
+        }
+
         const browser = await puppeteer.launch({
             args: chromium.args,
             defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath || '/usr/bin/chromium-browser',
+            executablePath,
             headless: chromium.headless,
         });
 
         const page = await browser.newPage();
-        await page.setContent(htmlContent);
+        await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+
         const pdfBuffer = await page.pdf({ format: 'A4' });
 
         await browser.close();
 
-        const safeFileName = encodeURIComponent(fileName);
-
-        res.set({
-            'Content-Type': 'application/pdf',
-            'Content-Disposition': `attachment; filename="${safeFileName}.pdf"`,
-            'Content-Length': pdfBuffer.length,
-        });
-
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${fileName}.pdf"`);
         res.send(pdfBuffer);
 
     } catch (error) {

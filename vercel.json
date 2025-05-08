@@ -43,5 +43,11 @@
       "src": "/api/add-to-calendar",
       "dest": "/api/add-to-calendar.js"
     }
-  ]
+  ],
+  "functions": {
+    "api/generate-invoice.js": {
+      "memory": 512,
+      "maxDuration": 10
+    }
+  }
 }
