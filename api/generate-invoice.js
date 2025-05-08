@@ -1,6 +1,5 @@
-const chromium = require('chrome-aws-lambda');
 const puppeteer = require('puppeteer-core');
-const allowCors = require('../utils/allowCors');
+const chromium = require('chrome-aws-lambda');
 
 const handler = async (req, res) => {
     if (req.method !== 'POST') {
@@ -16,23 +15,27 @@ const handler = async (req, res) => {
     try {
         const browser = await puppeteer.launch({
             args: chromium.args,
+            defaultViewport: chromium.defaultViewport,
             executablePath: await chromium.executablePath,
             headless: chromium.headless,
         });
 
         const page = await browser.newPage();
-        await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-
+        await page.setContent(htmlContent);
         const pdfBuffer = await page.pdf({ format: 'A4' });
 
         await browser.close();
 
         const safeFileName = encodeURIComponent(fileName);
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename="${safeFileName}"`);
-        res.setHeader('Content-Length', pdfBuffer.length);
+
+        res.set({
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `attachment; filename="${safeFileName}.pdf"`,
+            'Content-Length': pdfBuffer.length,
+        });
 
         res.send(pdfBuffer);
+
     } catch (error) {
         console.error('Error generating PDF:', error.message);
         return res.status(500).json({
@@ -42,4 +45,4 @@ const handler = async (req, res) => {
     }
 };
 
-module.exports = allowCors(handler);
+module.exports = handler;
