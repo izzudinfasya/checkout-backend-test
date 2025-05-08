@@ -34,6 +34,14 @@
     {
       "src": "/api/register-pay",
       "dest": "/api/register-pay.js"
+    },
+    {
+      "src": "/api/create-registrant",
+      "dest": "/api/create-registrant.js"
+    },
+    {
+      "src": "/api/add-to-calendar",
+      "dest": "/api/add-to-calendar.js"
     }
   ]
 }
