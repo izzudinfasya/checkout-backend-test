@@ -28,8 +28,15 @@ const handler = async (req, res) => {
 
     let paymentData;
     let temporaryPaymentId;
+    let swoogoToken;
 
     try {
+        swoogoToken = await getToken();
+
+        if (!swoogoToken) {
+            throw new Error('Failed to get swoogo token');
+        }
+
         const customer = await stripe.customers.create({
             email,
             name: nameOnCard,
