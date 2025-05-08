@@ -12,8 +12,8 @@
       "dest": "/api/events.js"
     },
     {
-      "src": "/api/discount",
-      "dest": "/api/discount.js"
+      "src": "/api/discounts",
+      "dest": "/api/discounts.js"
     },
     {
       "src": "/api/reg-types",
