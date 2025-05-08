@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer-core');
 const chromium = require('chrome-aws-lambda');
+const allowCors = require('../utils/allowCors');
 
 const handler = async (req, res) => {
     if (req.method !== 'POST') {
@@ -45,4 +46,4 @@ const handler = async (req, res) => {
     }
 };
 
-module.exports = handler;
+module.exports = allowCors(handler);
