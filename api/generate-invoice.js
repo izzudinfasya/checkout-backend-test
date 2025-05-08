@@ -14,7 +14,7 @@ const handler = async (req, res) => {
     }
 
     try {
-        const executablePath = chromium.executablePath();
+        const executablePath = await chromium.executablePath();
 
         if (!executablePath) {
             throw new Error("Chromium executable not found.");
@@ -23,7 +23,7 @@ const handler = async (req, res) => {
         const browser = await puppeteer.launch({
             args: chromium.args,
             defaultViewport: chromium.defaultViewport,
-            executablePath,
+            executablePath: executablePath,
             headless: chromium.headless,
         });
 
