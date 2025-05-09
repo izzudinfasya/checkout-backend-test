@@ -26,17 +26,70 @@ const handler = async (req, res) => {
         return res.status(400).json({ success: false, message: 'Missing required fields' });
     }
 
-    let paymentData;
-    let temporaryPaymentId;
     let swoogoToken;
 
     try {
         swoogoToken = await getToken();
-
         if (!swoogoToken) {
             throw new Error('Failed to get swoogo token');
         }
 
+        const allParticipants = Object.values(participants).flat();
+
+        const registrantResponses = await Promise.all(
+            allParticipants.map(async (participant) => {
+                const formData = new URLSearchParams();
+                formData.append('po_number', `PO-${Date.now()}`);
+                formData.append('email', participant.email);
+                formData.append('event_id', eventId);
+                formData.append('first_name', participant.firstName);
+                formData.append('last_name', participant.lastName);
+                formData.append('registration_status', 'pending');
+                formData.append('send_email', 'false');
+                formData.append('discount_code', participant.discount || '');
+                formData.append('reg_type_id', participant.regType);
+                formData.append('company', participant.company);
+                formData.append('job_title', participant.jobTitle);
+                formData.append('work_phone', participant.phone);
+                formData.append('country', participant.country);
+                formData.append('state', participant.state);
+
+                try {
+                    const response = await axios.post(
+                        'https://api.swoogo.com/api/v1/registrants/create',
+                        formData,
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${swoogoToken}`,
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                        }
+                    );
+
+                    return {
+                        success: true,
+                        data: response.data, // contains registrant ID
+                    };
+                } catch (error) {
+                    console.error('Registrant creation failed:', error.response?.data || error.message);
+                    return {
+                        success: false,
+                        error: error.response?.data || error.message,
+                    };
+                }
+            })
+        );
+
+        if (registrantResponses.some(result => !result.success)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Failed to register one or more participants',
+                failedParticipants: registrantResponses.filter(r => !r.success),
+            });
+        }
+
+        // Proceed to payment
         const customer = await stripe.customers.create({
             email,
             name: nameOnCard,
@@ -49,7 +102,7 @@ const handler = async (req, res) => {
             source: token,
         });
 
-        paymentData = await stripe.charges.create({
+        const paymentData = await stripe.charges.create({
             amount: amount,
             currency: 'cad',
             customer: customer.id,
@@ -61,86 +114,52 @@ const handler = async (req, res) => {
             throw new Error('Payment failed.');
         }
 
-        temporaryPaymentId = paymentData.id;
+        // Update registrants to 'confirmed'
+        const updateResponses = await Promise.all(
+            registrantResponses.map(async (r) => {
+                const updateForm = new URLSearchParams();
+                updateForm.append('registration_status', 'confirmed');
+                updateForm.append('send_email', 'true');
 
-        const allParticipants = Object.values(participants).flat();
-
-        const registrantPromises = allParticipants.map(async (participant) => {
-            const formData = new URLSearchParams();
-            formData.append('po_number', `PO-${Date.now()}`);
-            formData.append('email', participant.email);
-            formData.append('event_id', eventId);
-            formData.append('first_name', participant.firstName);
-            formData.append('last_name', participant.lastName);
-            formData.append('registration_status', 'confirmed');
-            formData.append('send_email', 'true');
-            formData.append('discount_code', participant.discount || '');
-            formData.append('reg_type_id', participant.regType);
-            formData.append('company', participant.company);
-            formData.append('job_title', participant.jobTitle);
-            formData.append('work_phone', participant.phone);
-            formData.append('country', participant.country);
-            formData.append('state', participant.state);
-
-            try {
-                const response = await axios.post(
-                    'https://api.swoogo.com/api/v1/registrants/create',
-                    formData,
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${swoogoToken}`,
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                    }
-                );
-
-                return {
-                    success: true,
-                    data: response.data
-                };
-            } catch (error) {
-                console.error('Registrant creation failed:', error.response?.data || error.message);
-                return {
-                    success: false,
-                    error: error.response?.data || error.message
-                };
-            }
-        });
-
-        const registrantResponses = await Promise.all(registrantPromises);
-
-        if (registrantResponses.some(result => result.success === false)) {
-            await stripe.refunds.create({
-                charge: temporaryPaymentId,
-            });
-
-            return res.status(400).json({
-                success: false,
-                message: 'Registration failed for one or more participants, charge refunded.',
-                failedParticipants: registrantResponses.filter(r => !r.success),
-            });
-        }
+                try {
+                    const updateRes = await axios.put(
+                        `https://api.swoogo.com/api/v1/registrants/${r.data.id}`,
+                        updateForm,
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${swoogoToken}`,
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                        }
+                    );
+                    return {
+                        success: true,
+                        data: updateRes.data
+                    };
+                } catch (error) {
+                    console.error('Failed to confirm registrant:', error.response?.data || error.message);
+                    return {
+                        success: false,
+                        error: error.response?.data || error.message
+                    };
+                }
+            })
+        );
 
         return res.status(200).json({
             success: true,
             paymentData,
-            registrantResults: registrantResponses.map(r => r.data),
+            registrantResults: updateResponses,
             nextStep: 'confirmation',
         });
 
     } catch (error) {
-        console.error('Error:', error.response ? error.response.data : error.message);
-
-        if (temporaryPaymentId) {
-            await stripe.refunds.create({
-                charge: temporaryPaymentId,
-            });
-        }
+        console.error('Error:', error.response?.data || error.message);
 
         return res.status(500).json({
             success: false,
-            message: error.response ? error.response.data : error.message,
+            message: error.response?.data || error.message,
         });
     }
 };
