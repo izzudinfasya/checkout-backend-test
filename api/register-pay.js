@@ -51,8 +51,8 @@ const handler = async (req, res) => {
                 formData.append('company', participant.company);
                 formData.append('job_title', participant.jobTitle);
                 formData.append('work_phone', participant.phone);
-                formData.append('country', participant.country);
-                formData.append('state', participant.state);
+                formData.append('custom_fields[c_5970654]', participant.country);
+                formData.append('custom_fields[c_5970655]', participant.state);
 
                 try {
                     const response = await axios.post(
