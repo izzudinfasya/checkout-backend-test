@@ -44,7 +44,7 @@ const handler = async (req, res) => {
                 formData.append('event_id', eventId);
                 formData.append('first_name', participant.firstName);
                 formData.append('last_name', participant.lastName);
-                formData.append('registration_status', 'pending');
+                formData.append('registration_status', 'in_progress');
                 formData.append('send_email', 'false');
                 formData.append('discount_code', participant.discount || '');
                 formData.append('reg_type_id', participant.regType);
@@ -67,15 +67,46 @@ const handler = async (req, res) => {
                         }
                     );
 
+                    const resData = response.data;
+
+                    if (Array.isArray(resData) && resData[0]?.field && resData[0]?.message) {
+                        console.error('Swoogo validation error:', resData);
+                        return {
+                            success: false,
+                            message: 'Validation errors occurred',
+                            failedParticipants: [
+                                {
+                                    error: resData
+                                }
+                            ]
+                        };
+                    }
+
                     return {
                         success: true,
-                        data: response.data, // contains registrant ID
+                        data: resData,
                     };
+
                 } catch (error) {
-                    console.error('Registrant creation failed:', error.response?.data || error.message);
+                    const errorData = error.response?.data;
+
+                    if (Array.isArray(errorData) && errorData[0]?.field && errorData[0]?.message) {
+                        return {
+                            success: false,
+                            message: 'Validation errors occurred',
+                            failedParticipants: [
+                                {
+                                    error: errorData
+                                }
+                            ]
+                        };
+                    }
+
+                    console.error('Registrant creation failed (exception):', errorData || error.message);
                     return {
                         success: false,
-                        error: error.response?.data || error.message,
+                        message: 'Internal server error',
+                        error: errorData || error.message,
                     };
                 }
             })
