@@ -39,7 +39,7 @@ const handler = async (req, res) => {
         const registrantResponses = await Promise.all(
             allParticipants.map(async (participant) => {
                 const formData = new URLSearchParams();
-                formData.append('po_number', `PO-${Date.now()}`);
+                // formData.append('po_number', `PO-${Date.now()}`);
                 formData.append('email', participant.email);
                 formData.append('event_id', eventId);
                 formData.append('first_name', participant.firstName);
@@ -53,6 +53,7 @@ const handler = async (req, res) => {
                 formData.append('work_phone', participant.phone);
                 formData.append('c_5970654', participant.country);
                 formData.append('c_5970655', participant.state);
+                formData.append('payment_method', 'credit_card');
 
                 try {
                     const response = await axios.post(
