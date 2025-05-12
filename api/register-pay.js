@@ -45,7 +45,7 @@ const handler = async (req, res) => {
                 formData.append('first_name', participant.firstName);
                 formData.append('last_name', participant.lastName);
                 formData.append('registration_status', 'in_progress');
-                formData.append('send_email', 'false');
+                formData.append('send_email', 'true');
                 formData.append('discount_code', participant.discount || '');
                 formData.append('reg_type_id', participant.regType);
                 formData.append('company', participant.company);
