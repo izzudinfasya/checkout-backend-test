@@ -20,7 +20,8 @@ const handler = async (req, res) => {
         billingCountry,
         billingPostalCode,
         participants,
-        eventId
+        eventId,
+        fieldMap
     } = req.body;
 
     if (!token || !amount || !participants || !eventId) {
@@ -52,8 +53,8 @@ const handler = async (req, res) => {
                 formData.append('company', participant.company);
                 formData.append('job_title', participant.jobTitle);
                 formData.append('work_phone', participant.phone);
-                formData.append('c_5970654', participant.country);
-                formData.append('c_5970655', participant.state);
+                formData.append(fieldMap.country, participant.country);
+                formData.append(fieldMap.state, participant.state);
                 formData.append('payment_method', 'credit_card');
 
                 try {
@@ -153,11 +154,9 @@ const handler = async (req, res) => {
                 const updateForm = new URLSearchParams();
                 updateForm.append('registration_status', 'confirmed');
                 updateForm.append('send_email', 'true');
-
                 try {
                     const updateRes = await axios.put(
-                        `https://api.swoogo.com/api/v1/registrants/${r.data.id}`,
-                        updateForm,
+                        `https://api.swoogo.com/api/v1/registrants/update/${r.data.id}`, updateForm,
                         {
                             headers: {
                                 'Authorization': `Bearer ${swoogoToken}`,
@@ -166,16 +165,26 @@ const handler = async (req, res) => {
                             },
                         }
                     );
+
+                    await axios.post(
+                        `https://api.swoogo.com/api/v1/registrants/${r.data.id}/trigger-email/registration_created`,
+                        {},
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${swoogoToken}`,
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                        }
+                    );
+
                     return {
                         success: true,
                         data: updateRes.data
                     };
                 } catch (error) {
-                    console.error('Failed to confirm registrant:', error.response?.data || error.message);
-                    return {
-                        success: false,
-                        error: error.response?.data || error.message
-                    };
+                    console.error(`Error updating or emailing registrant ${r.data.id}:`, error.response?.data || error.message);
+                    return { success: false, id: r.data.id, error: error.response?.data || error.message };
                 }
             })
         );
