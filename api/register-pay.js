@@ -12,6 +12,7 @@ const handler = async (req, res) => {
     const {
         token,
         amount,
+        description,
         email,
         nameOnCard,
         billingAddressLine1,
@@ -138,7 +139,7 @@ const handler = async (req, res) => {
             amount: amount,
             currency: 'cad',
             customer: customer.id,
-            description: 'Event Registration Big Data Canada',
+            description: description,
             receipt_email: email,
         });
 
