@@ -21,7 +21,8 @@ const handler = async (req, res) => {
         billingPostalCode,
         participants,
         eventId,
-        fieldMap
+        fieldMap,
+        reference
     } = req.body;
 
     if (!token || !amount || !participants || !eventId) {
@@ -56,6 +57,7 @@ const handler = async (req, res) => {
                 formData.append(fieldMap.country, participant.country);
                 formData.append(fieldMap.state, participant.state);
                 formData.append('payment_method', 'credit_card');
+                formData.append('reference', reference);
 
                 try {
                     const response = await axios.post(
