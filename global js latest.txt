@@ -1042,11 +1042,15 @@ function generateForms() {
                     state: 'c_5970655',
                 };
 
+                const url = new URL(window.location.href);
+                var ref_code = url.searchParams.get("ref");
+
                 const requestData = {
                     ...paymentData,
                     participants: participants,
                     eventId: eventId,
                     fieldMap: fieldMap,
+                    reference: ref_code || null,
                 };
 
                 const summaryData = {
