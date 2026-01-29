@@ -92,14 +92,6 @@ const handler = async (req, res) => {
             fullEmails = data.emailAddresses.filter(Boolean);
         }
 
-        const jobTitles = Array.isArray(data.jobTitles)
-            ? data.jobTitles.filter(Boolean)
-            : [];
-
-        const workPhones = Array.isArray(data.workPhones)
-            ? data.workPhones.filter(Boolean)
-            : [];
-
         const eventKey = getEventKeyFromUrl(data.eventWeb);
         const eventConfig = EVENT_CONFIG[eventKey];
 
@@ -116,8 +108,8 @@ const handler = async (req, res) => {
                 <p><strong>Names:</strong> ${data.userName?.join(', ') || 'N/A'}</p>
                 <p><strong>Emails:</strong> ${fullEmails.join(', ') || 'N/A'}</p>
                 <p><strong>Companies:</strong> ${data.compNames?.join(', ') || 'N/A'}</p>
-                <p><strong>Job Titles:</strong> ${jobTitles.join(', ') || 'N/A'}</p>
-                <p><strong>Work Phones:</strong> ${workPhones.join(', ') || 'N/A'}</p>
+                <p><strong>Job Titles:</strong> ${data.jobTitles.join(', ') || 'N/A'}</p>
+                <p><strong>Work Phones:</strong> ${data.workPhones.join(', ') || 'N/A'}</p>
                 <p><strong>Event Web:</strong> ${data.eventWeb || 'N/A'}</p>
                 <p><strong>Time:</strong> ${timestampCA}</p>
             `,
