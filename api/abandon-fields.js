@@ -5,12 +5,14 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const getEventKeyFromUrl = (url) => {
     try {
-        const hostname = new URL(url).hostname;
+        if (!url) return null;
+
+        const hostname = new URL(url).hostname.toLowerCase();
         const parts = hostname.split('.');
         const registerIndex = parts.indexOf('register');
 
         if (registerIndex !== -1 && parts[registerIndex + 1]) {
-            return parts[registerIndex + 1].toLowerCase();
+            return parts[registerIndex + 1];
         }
 
         return null;
@@ -19,16 +21,43 @@ const getEventKeyFromUrl = (url) => {
     }
 };
 
-const EVENT_EMAIL_MAP = {
-    employeeexperiencesummit: ['daniel.f@strategyinstitute.com', 'strategyinstitutegtm@gmail.com'],
-    financialdigitalmarketing: ['sam.caskey@strategyinstitute.com', 'strategyinstitutegtm@gmail.com'],
-    bigdatacanada: ['louis@strategyinstitute.com', 'strategyinstitutegtm@gmail.com'],
-    datafinancialservicessummit: ['louis@strategyinstitute.com', 'strategyinstitutegtm@gmail.com'],
-    peopleanalyticscanada: ['daniel.f@strategyinstitute.com', 'strategyinstitutegtm@gmail.com'],
-    foodsafetysummit: ['anthony.ar@strategyinstitute.com', 'strategyinstitutegtm@gmail.com'],
-    customerexperiencecanada: ['james.m@strategyinstitute.com', 'strategyinstitutegtm@gmail.com'],
-    contactcentresummit: ['james.m@strategyinstitute.com', 'strategyinstitutegtm@gmail.com'],
-    foundationendowmentsummit: ['anthony.ar@strategyinstitute.com', 'strategyinstitutegtm@gmail.com'],
+const EVENT_CONFIG = {
+    employeeexperiencesummit: {
+        label: 'Employee Experience Summit',
+        emails: ['daniel.f@strategyinstitute.com', 'strategyinstitutegtm@gmail.com'],
+    },
+    financialdigitalmarketing: {
+        label: 'Financial Digital Marketing Summit',
+        emails: ['sam.caskey@strategyinstitute.com', 'strategyinstitutegtm@gmail.com'],
+    },
+    bigdatacanada: {
+        label: 'Big Data Canada Summit',
+        emails: ['louis@strategyinstitute.com', 'strategyinstitutegtm@gmail.com'],
+    },
+    datafinancialservicessummit: {
+        label: 'Data & Financial Services Summit',
+        emails: ['louis@strategyinstitute.com', 'strategyinstitutegtm@gmail.com'],
+    },
+    peopleanalyticscanada: {
+        label: 'People Analytics Canada',
+        emails: ['daniel.f@strategyinstitute.com', 'strategyinstitutegtm@gmail.com'],
+    },
+    foodsafetysummit: {
+        label: 'Food Safety Summit',
+        emails: ['anthony.ar@strategyinstitute.com', 'strategyinstitutegtm@gmail.com'],
+    },
+    customerexperiencecanada: {
+        label: 'Customer Experience Canada',
+        emails: ['james.m@strategyinstitute.com', 'strategyinstitutegtm@gmail.com'],
+    },
+    contactcentresummit: {
+        label: 'Contact Centre Summit',
+        emails: ['james.m@strategyinstitute.com', 'strategyinstitutegtm@gmail.com'],
+    },
+    foundationendowmentsummit: {
+        label: 'Foundation & Endowment Summit',
+        emails: ['anthony.ar@strategyinstitute.com', 'strategyinstitutegtm@gmail.com'],
+    },
 };
 
 const DEFAULT_RECIPIENTS = [
@@ -44,10 +73,10 @@ const handler = async (req, res) => {
 
         const data = JSON.parse(req.body);
 
-        const timestampCA = new Date().toLocaleString("en-CA", {
-            timeZone: "America/Toronto",
-            dateStyle: "full",
-            timeStyle: "long",
+        const timestampCA = new Date().toLocaleString('en-CA', {
+            timeZone: 'America/Toronto',
+            dateStyle: 'full',
+            timeStyle: 'long',
         });
 
         let fullEmails = [];
@@ -55,37 +84,41 @@ const handler = async (req, res) => {
         if (Array.isArray(data.emailUsers) && Array.isArray(data.emailDomains)) {
             fullEmails = data.emailUsers
                 .map((user, idx) => {
-                    const domain = data.emailDomains[idx] || "";
-                    return user && domain ? `${user}@${domain}` : user || domain || "";
+                    const domain = data.emailDomains[idx] || '';
+                    return user && domain ? `${user}@${domain}` : '';
                 })
                 .filter(Boolean);
         } else if (Array.isArray(data.emailAddresses)) {
-            fullEmails = data.emailAddresses;
+            fullEmails = data.emailAddresses.filter(Boolean);
         }
 
         const eventKey = getEventKeyFromUrl(data.eventWeb);
-        const recipients = EVENT_EMAIL_MAP[eventKey] || DEFAULT_RECIPIENTS;
+        const eventConfig = EVENT_CONFIG[eventKey];
+
+        const recipients = eventConfig?.emails || DEFAULT_RECIPIENTS;
+        const eventLabel = eventConfig?.label || 'Unknown Event';
 
         const msg = {
             to: recipients,
             from: 'masfess24@gmail.com',
-            subject: `Abandoned Checkout Form${eventKey ? ` - ${eventKey}` : ''}`,
+            subject: `Abandoned Checkout Form - ${eventLabel}`,
             html: `
                 <h3>Abandoned Form Data</h3>
-                <p><strong>Names:</strong> ${data.userName?.join(", ") || "N/A"}</p>
-                <p><strong>Emails:</strong> ${fullEmails.join(", ") || "N/A"}</p>
-                <p><strong>Companies:</strong> ${data.compNames?.join(", ") || "N/A"}</p>
-                <p><strong>Event Web:</strong> ${data.eventWeb || "N/A"}</p>
+                <p><strong>Event:</strong> ${eventLabel}</p>
+                <p><strong>Names:</strong> ${data.userName?.join(', ') || 'N/A'}</p>
+                <p><strong>Emails:</strong> ${fullEmails.join(', ') || 'N/A'}</p>
+                <p><strong>Companies:</strong> ${data.compNames?.join(', ') || 'N/A'}</p>
+                <p><strong>Event Web:</strong> ${data.eventWeb || 'N/A'}</p>
                 <p><strong>Time:</strong> ${timestampCA}</p>
             `,
         };
 
         await sgMail.send(msg);
 
-        res.status(200).json({ success: true });
+        return res.status(200).json({ success: true });
     } catch (error) {
-        console.error('Error sending abandon email:', error);
-        res.status(500).json({ error: 'Failed to send email' });
+        console.error('Error sending abandoned checkout email:', error);
+        return res.status(500).json({ error: 'Failed to send email' });
     }
 };
 
